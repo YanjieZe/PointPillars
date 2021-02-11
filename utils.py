@@ -8,7 +8,7 @@ def bin2pointcloud(filename):
     bin->point cloud
     return: point cloud, size(n, 4)
     """
-    pointcloud = np.fromfile(filename,dtype=np.float64).reshape(-1,4)
+    pointcloud = np.fromfile(filename,dtype=np.float32).reshape(-1,4)
     return pointcloud
 
 

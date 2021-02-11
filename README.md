@@ -15,3 +15,6 @@
 4. 将字典中的所有numpy矩阵转化为一个numpy矩阵，输出。
     
 ```
+
+## pybind编译指令
+> c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) point_pillars.cpp -o point_pillars$(python3-config --extension-suffix)
