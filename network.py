@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import torch.nn as nn
-from config import GridParameters as cfg
+from config import Parameters
 
 class point_pillar_net(nn.Module):
 
