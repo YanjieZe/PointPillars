@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn as nn
 from config import Parameters
 
-class point_pillar_net(nn.Module):
+class point_pillar_net(nn.Module, params:Parameters):
 
     def __init__(self,in_channels, out_channels):
         super.__init__()
