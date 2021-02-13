@@ -3,7 +3,7 @@ from config import Parameters as cfg
 from utils import bin2pointcloud
 from point_pillars import createPillars
 
-def make_pillars(pointcloud, # n*4
+def create_pillars(pointcloud, # n*4
                 x_min = cfg.x_min,
                 x_max = cfg.x_max,
                 x_step = cfg.x_step,
@@ -16,15 +16,19 @@ def make_pillars(pointcloud, # n*4
                 z_max = cfg.z_max,
                 printTime = False):
     """
-    function: make point cloud into pillars
-    return: pillars, indices
-    """
-    pillars = createPillars(pointcloud, 100, 12000, float(x_step), float(y_step), float(x_min), float(x_max), float(y_min), float(y_max),-1.0,1.0,printTime)
+    function: make point cloud into pillar points and pillar indices.
     
-    return pillars
+    return: pillar_point, indices = batch_size * 12000 * 100 *7, batch_size * 12000 *3
+    """
+    pillars, indices = createPillars(pointcloud, 100, 12000, float(x_step), float(y_step), float(x_min), float(x_max), float(y_min), float(y_max),-1.0,1.0,printTime)
+    
+    return pillars, indices
 
+def create_pillars_target():
+    pass
 
 if __name__=="__main__":
     pc = bin2pointcloud("000000.bin")# (115384,4)
-    pillars, indices = make_pillars(pc)
-    print(pillars)# 2*1*1
+    pillars, indices = create_pillars(pc)
+    print(pillars.shape)# 1 * 12000 * 100 * 7
+    print(indices.shape)# 1 * 12000 * 3
