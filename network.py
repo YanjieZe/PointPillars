@@ -7,11 +7,13 @@ from make_pillars import create_pillars
 
 class pillar_feature_net(nn.Module):
     """
-    Point Pillar Net
+    Pillar feature net
 
-    Input: batch_size * 7 * 12000 * 100(batch_size >= 2)
+    Input: pointclouds of batch size
 
-    Output: batch_size * 64 * 12000 * 100
+    Input Shape: batch_size * pointcloud(batch_size >= 2)
+
+    Output Shape: batch_size * 504 * 504 * 64
     """
 
     def __init__(self):
@@ -91,9 +93,57 @@ class pillar_feature_net(nn.Module):
         return pseudo_img
 
 
+class backbone(nn.Module):
+    """
+    Backbone (2D CNN)
+
+    Input Shape: batch_size * 504 * 504 * 64
+    """
+    def __init__(self):
+        super(backbone2d, self).__init__()
+
+        # top-down
+
+        self.block1 = [] # (S, 4, C)
+        self.bn1 = []
+        for i in range(4):
+            stride = (2,2) if i==0 else (1,1)
+            self.block1.append(nn.Conv2d(64, 64, kernel_size=(3,3), stride=stride))
+            self.bn1.append(nn.BatchNorm2d(64))
+
+        self.block2 = [] # (2S, 6, 2C)
+        self.bn2 = []
+        for i in range(6):
+            stride = (2,2) if i==0 else (1,1)
+            self.block2.append(nn.Conv2d(64, 64*2, kernel_size=(3,3),stride=stride))
+            self.bn2.append(nn.BatchNorm2d(64*2))
+        
+        self.block3 = [] # (4S, 6, 4C)
+        self.bn3 = []
+        for i in range(6):
+            stride = (2,2) if i==0 else (1,1)
+            self.block2.append(nn.Conv2d(64, 64*4, kernel_size=(3,3),stride=stride))
+            self.bn3.append(nn.BatchNorm2d(64*4))
+        
+        # upsampling
+
+        self.up1 = nn.Conv2d(64, 2*64, (3,3), (1,1)) # (S, S, 2C)
+        self.bn_up1 = nn.BatchNorm2d(2*64)
+
+        self.up2 = nn.Conv2d(2*64, 2*64, (3,3), (2,2)) # (2S, S, 2C)
+        self.bn_up2 = nn.BatchNorm2d(2*64)
+
+        self.up3 = nn.Conv2d(4*64, 2*64, (3,3), (4,4)) # (4S, S, 2C)
+        self.bn_up1 = nn.BatchNorm2d(2*64)
+        
+
+
 if __name__=="__main__":
-    net = pillar_feature_net().float()
-    test_var = np.random.randn(4, 12234,4)
-    test_var = torch.from_numpy(test_var)
-    result = net(test_var)
-    print(result.shape)
+    mode ='test backbone'
+    if mode == 'test pillar feature net':
+        net = pillar_feature_net().float()
+        test_var = np.random.randn(4, 12234,4)
+        test_var = torch.from_numpy(test_var)
+        result = net(test_var)
+        print(result.shape)
+    elif mode == 'test backbone':

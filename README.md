@@ -18,3 +18,6 @@
 
 ## pybind编译指令
 > c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) point_pillars.cpp -o point_pillars$(python3-config --extension-suffix)
+
+## log
+**2021.2.13**:pillar feature net finished.
