@@ -85,3 +85,8 @@ class Parameters(GridParameters, DataParameters, NetworkParameters):
 
     def __init__(self):
         super(Parameters, self).__init__()
+
+
+if __name__=='__main__':
+    print(len(Parameters.anchor_dims)) # 4
+    print(int(Parameters.nb_classes)) # 4
