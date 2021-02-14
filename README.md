@@ -1,5 +1,10 @@
 # Point Pillars Implementation
 
+- [x] config.py
+- [x] network.py
+- [x] reader.py
+- [ ] lossfunction.py
+- [ ] train.py
 ## make pillars算法
 ```
 输入：包含n个4维点的点云

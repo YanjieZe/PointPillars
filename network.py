@@ -5,7 +5,7 @@ import tensorflow as tf
 from config import Parameters
 from make_pillars import create_pillars
 
-class pillar_feature_net(nn.Module):
+class pillar_feature_net(nn.Mo
     """
     Pillar feature net
 
@@ -18,7 +18,6 @@ class pillar_feature_net(nn.Module):
 
     def __init__(self):
         super(pillar_feature_net, self).__init__()
-        self.name = 'Pillar Feature Net'
         self.conv1 = nn.Conv2d(7, 64,kernel_size=1)
         self.bn1 = nn.BatchNorm2d(64,eps=1e-5,momentum=0.1)
         self.relu1 = nn.ReLU()
