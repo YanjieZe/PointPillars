@@ -260,9 +260,33 @@ class detection_head(nn.Module):
         return occ, loc, angle, size, heading, clf
         
 
+class point_pillars_net(nn.Module):
+    """
+    overall model
+    """
+    def __init__(self):
+        super(point_pillars_net, self).__init__()
+
+        self.pillar_feature_net = pillar_feature_net()
+
+        self.backbone = backbone()
+
+        self.detection_head = detection_head()
+
+    def forward(self, x):
+
+        x = self.pillar_feature_net(x)
+        x = self.backbone(x)
+        occ, loc, angle, size, heading, clf= self.detection_head(x)
+
+        return occ, loc, angle, size, heading, clf
+
+
+        
+
 
 if __name__=="__main__":
-    mode ='test detection head'
+    mode ='test all'
     if mode == 'test pillar feature net':
         net = pillar_feature_net().float()
         test_var = np.random.randn(4, 12234,4)
@@ -283,4 +307,12 @@ if __name__=="__main__":
         result = net(test_var)
         for i in range(6):
             print(result[i].shape)
+    elif mode == 'test all':
+        net = point_pillars_net()
+        test_var = np.random.randn(4, 12234,4)
+        test_var = torch.from_numpy(test_var)
+        result = net(test_var)
+        for i in range(6):
+            print(result[i].shape)
+
         
