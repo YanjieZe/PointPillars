@@ -98,31 +98,44 @@ class backbone(nn.Module):
     Backbone (2D CNN)
 
     Input Shape: batch_size * 504 * 504 * 64
+    Output Shape: batch_size * 252 * 252 * 384
     """
     def __init__(self):
-        super(backbone2d, self).__init__()
+        super(backbone, self).__init__()
 
         # top-down
 
         self.block1 = [] # (S, 4, C)
         self.bn1 = []
         for i in range(4):
-            stride = (2,2) if i==0 else (1,1)
-            self.block1.append(nn.Conv2d(64, 64, kernel_size=(3,3), stride=stride))
+            if i==0:
+                stride = (2,2)
+                self.block1.append(nn.Conv2d(64, 64, kernel_size=(3,3), stride=stride,padding=(3,3)))
+            else:
+                stride = (1,1)
+                self.block1.append(nn.Conv2d(64, 64, kernel_size=(3,3), stride=stride,padding=(1,1)))
             self.bn1.append(nn.BatchNorm2d(64))
 
         self.block2 = [] # (2S, 6, 2C)
         self.bn2 = []
         for i in range(6):
-            stride = (2,2) if i==0 else (1,1)
-            self.block2.append(nn.Conv2d(64, 64*2, kernel_size=(3,3),stride=stride))
+            if i==0:
+                stride = (2,2) 
+                self.block2.append(nn.Conv2d(64, 64*2, kernel_size=(3,3),stride=stride,padding=(3,3)))
+            else:
+                stride = (1,1)
+                self.block2.append(nn.Conv2d(64*2, 64*2, (3,3),stride,padding=(1,1)))
             self.bn2.append(nn.BatchNorm2d(64*2))
         
         self.block3 = [] # (4S, 6, 4C)
         self.bn3 = []
         for i in range(6):
-            stride = (2,2) if i==0 else (1,1)
-            self.block2.append(nn.Conv2d(64, 64*4, kernel_size=(3,3),stride=stride))
+            if i==0:
+                stride = (2,2) 
+                self.block3.append(nn.Conv2d(64, 64*4, kernel_size=(3,3),stride=stride,padding=(3,3)))
+            else:
+                stride = (1,1)
+                self.block3.append(nn.Conv2d(64*4, 64*4, (3,3), stride,padding=(1,1)))
             self.bn3.append(nn.BatchNorm2d(64*4))
         
         # upsampling
@@ -130,13 +143,45 @@ class backbone(nn.Module):
         self.up1 = nn.Conv2d(64, 2*64, (3,3), (1,1)) # (S, S, 2C)
         self.bn_up1 = nn.BatchNorm2d(2*64)
 
-        self.up2 = nn.Conv2d(2*64, 2*64, (3,3), (2,2)) # (2S, S, 2C)
+        self.up2 = nn.Conv2d(2*64, 2*64, (3,3), (1,1)) # (2S, S, 2C)
         self.bn_up2 = nn.BatchNorm2d(2*64)
 
-        self.up3 = nn.Conv2d(4*64, 2*64, (3,3), (4,4)) # (4S, S, 2C)
-        self.bn_up1 = nn.BatchNorm2d(2*64)
+        self.up3 = nn.Conv2d(4*64, 2*64, (3,3), (1,1)) # (4S, S, 2C)
+        self.bn_up3 = nn.BatchNorm2d(2*64)
         
+    def forward(self, x):
+        x = x.permute(0,3,1,2)
+        x0 = x
 
+        for i in range(4):
+            x = self.block1[i](x)
+            x = self.bn1[i](x)
+        x1 = x
+        x = x0
+        up1 = self.up1(x1)
+        up1 = self.bn_up1(up1)
+
+        for i in range(6):
+            x = self.block2[i](x)
+            x = self.bn2[i](x)
+        x2 = x
+        x = x0
+        up2 = self.up2(x2)
+        up2 = self.bn_up2(up2)
+
+        for i in range(6):
+            x = self.block3[i](x)
+            x = self.bn3[i](x)
+        x3 = x
+        x = x0
+        up3 = self.up3(x3)
+        up3 = self.bn_up3(up3)
+
+        # print(up1.shape, up2.shape, up3.shape)
+
+        concat_feature = torch.cat([up1,up2,up3],1).permute(0,2,3,1)
+
+        return concat_feature
 
 if __name__=="__main__":
     mode ='test backbone'
@@ -147,3 +192,10 @@ if __name__=="__main__":
         result = net(test_var)
         print(result.shape)
     elif mode == 'test backbone':
+        net = backbone().float()
+        test_var = np.random.randn(4,504,504,64)
+        test_var = torch.from_numpy(test_var).float()
+        # print(test_var.type())
+        result = net(test_var)
+        print(result.shape)
+        
