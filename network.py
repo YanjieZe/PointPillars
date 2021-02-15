@@ -1,17 +1,15 @@
 import torch
 import numpy as np
 import torch.nn as nn
-import tensorflow as tf
 from config import Parameters
-from make_pillars import create_pillars
 
-class pillar_feature_net(nn.Mo
+class pillar_feature_net(nn.Module):
     """
     Pillar feature net
 
-    Input: pointclouds of batch size
+    Input: Pillar Points, Pillar indices
 
-    Input Shape: batch_size * pointcloud(batch_size >= 2)
+    Input Shape: batch_size * 12000 * 100* 7, batch_size * 12000 * 3
 
     Output Shape: batch_size * 504 * 504 * 64
     """
@@ -24,23 +22,10 @@ class pillar_feature_net(nn.Mo
         self.maxpooling1 = nn.MaxPool2d((1,100))
         
         
-    def forward(self, pointclouds):
+    def forward(self, pillar_points, pillar_indices):
 
-        pillar_points, pillar_indices = create_pillars(pointclouds[0])  
-        pillar_points = torch.from_numpy(pillar_points)
-        pillar_indices = torch.from_numpy(pillar_indices).long()
-        # a = pillar_indices[0,0,:].numpy()
-        # print(a[0])
-        if pointclouds.shape[0] >1:
-            i = 1
-            while i < pointclouds.shape[0]:
-                pillar_points_new, pillars_indices_new = create_pillars(pointclouds[i])
-                pillar_points_new = torch.from_numpy(pillar_points_new).long()
-                pillars_indices_new = torch.from_numpy(pillars_indices_new)
-                pillar_points = torch.cat([pillar_points, pillar_points_new], 0)
-                pillar_indices = torch.cat([pillar_indices, pillars_indices_new], 0)
-                i += 1
-        
+        assert pillar_points.ndim == 4
+        assert pillar_indices.ndim == 3
         x = pillar_points.permute(0, 3, 1, 2) # Batch_size * 7 * 12000 * 100
         # print(x.shape[0])
         x = self.conv1(x)
@@ -285,12 +270,14 @@ class point_pillars_net(nn.Module):
 
 
 if __name__=="__main__":
-    mode ='test all'
+    mode ='test pillar feature net'
     if mode == 'test pillar feature net':
         net = pillar_feature_net().float()
-        test_var = np.random.randn(4, 12234,4)
-        test_var = torch.from_numpy(test_var)
-        result = net(test_var)
+        test_var = np.random.randn(4, 12000,100, 7)
+        test_var = torch.from_numpy(test_var).float()
+        indice = np.random.randn(4, 12000, 3)
+        indice = torch.from_numpy(indice).long()
+        result = net(test_var, indice)
         print(result.shape)
     elif mode == 'test backbone':
         net = backbone().float()

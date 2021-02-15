@@ -78,7 +78,6 @@ class KittiDataReader(DataReader):
 
 
 if __name__=='__main__':
-    filepath = '/home/neil/disk/kitti'
 
     test_path = './000000.bin'
     pc = KittiDataReader.read_lidar(test_path)
