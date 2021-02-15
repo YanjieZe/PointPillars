@@ -55,10 +55,10 @@ class KittiDataReader(DataReader):
                 values = line.split()
 
                 element = Label3D(
-                    str(values[0]),
-                    np.array(values[11:14], dtype=np.float32),
-                    np.array(values[8:11], dtype=np.float32),
-                    float(values[14])
+                    str(values[0]), # 类别
+                    np.array(values[11:14], dtype=np.float32), # 在相机坐标系的坐标
+                    np.array(values[8:11], dtype=np.float32), # 3D bounding box的长宽高
+                    float(values[14]) # yaw角
                 )
 
                 if element.classification == "DontCare":

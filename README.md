@@ -5,6 +5,17 @@
 - [x] reader.py
 - [ ] lossfunction.py
 - [ ] train.py
+
+## kitti dataset label.txt
+0. 类别
+1. 截断程度
+2. 遮挡率
+3. 观察角度
+45. 2D bounding box左上角坐标
+67. 2D bounding box右下角坐标
+8910. 3D bounding box 的length，width， height
+111213. 3D boudning box 在相机的坐标
+14. 相对y轴的旋转角度
 ## make pillars算法
 ```
 输入：包含n个4维点的点云

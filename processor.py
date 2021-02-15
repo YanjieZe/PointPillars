@@ -7,6 +7,8 @@ from point_pillars import createPillars, createPillarsTarget
 from reader import DataReader, Label3D, KittiDataReader
 from sklearn.utils import shuffle
 import sys
+import tensorflow as tf
+from torch.utils.data import Dataset
 
 
 def select_best_anchors(arr):
@@ -125,8 +127,16 @@ class DataProcessor(Parameters):
         # class_label = np.array(sel[...,9],dtype='uint8').tolist()
         # print(class_label)
         # one_hot_encode = to_categorical(sel[..., 9], num_classes=self.nb_classes)
+        one_hot_encode = tf.keras.utils.to_categorical(sel[..., 9], num_classes=self.nb_classes, dtype='float64')
 
-        return sel[..., 0], sel[..., 1:4], sel[..., 4:7], sel[..., 7], sel[..., 8], sel[...,9]
+        return sel[..., 0], sel[..., 1:4], sel[..., 4:7], sel[..., 7], sel[..., 8], one_hot_encode
+
+
+class kitti_dataset(Dataset, DataProcessor):
+    
+    def __init__(self):
+        super(kitti_dataset, self).__init__()
+        
 
 
 if __name__=='__main__':
