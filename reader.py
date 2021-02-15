@@ -69,20 +69,27 @@ class KittiDataReader(DataReader):
         return elements
 
     @staticmethod
-    def read_calibration(file_path: str):
-        with open(file_path, "r") as f:
-            lines = f.readlines()
-            Tr_velo_to_cam = np.array(lines[5].split(": ")[1].split(" "), dtype=np.float32).reshape((3, 4))
+    def read_calibration(file_path:str=None):
+        """
+        警告：暂时用现成的进行测试
+        """
+        
+            Tr_velo_to_cam = np.array([[6.927964000000e-03,-9.999722000000e-01,-2.757829000000e-03,-2.457729000000e-02],
+                    [-1.162982000000e-03,2.749836000000e-03, -9.999955000000e-01,-6.127237000000e-02],
+                    [9.999753000000e-01,6.931141000000e-03,-1.143899000000e-03,-3.321029000000e-01]], dtype=np.float32)
             R, t = Tr_velo_to_cam[:, :3], Tr_velo_to_cam[:, 3]
             return R, t
 
 
 if __name__=='__main__':
 
-    test_path = './000000.bin'
-    pc = KittiDataReader.read_lidar(test_path)
-    print(pc.shape) # 115384 * 4
+    # test_path = './000000.bin'
+    # pc = KittiDataReader.read_lidar(test_path)
+    # print(pc.shape) # 115384 * 4
 
-    test_path = './000000.txt'
-    label = KittiDataReader.read_label(test_path)
-    print(label[0])
+    # test_path = './000000.txt'
+    # label = KittiDataReader.read_label(test_path)
+    # print(label[0])
+
+    R, t = KittiDataReader.read_calibration()
+    print(R, t)

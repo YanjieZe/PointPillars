@@ -6,7 +6,8 @@
 - [ ] lossfunction.py
 - [ ] train.py
 
-## kitti dataset label.txt
+# kitti dataset
+## label.txt 说明
 0. 类别
 1. 截断程度
 2. 遮挡率
@@ -16,6 +17,9 @@
 8910. 3D bounding box 的length，width， height
 111213. 3D boudning box 在相机的坐标
 14. 相对y轴的旋转角度
+## calibration.txt 说明
+Tr_velo_to_cam maps a point in point cloud coordinate to reference co-ordinate.
+
 ## make pillars算法
 ```
 输入：包含n个4维点的点云
@@ -35,7 +39,6 @@
 ## pybind编译指令
 > c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) point_pillars.cpp -o point_pillars$(python3-config --extension-suffix)
 
-## log
-**2021.2.13**:pillar feature net finished.
 
-**2021.2.14**:backbone finished.
+## 🌟Awesome Links
+[Kitti介绍（来自medium）](https://medium.com/test-ttile/kitti-3d-object-detection-dataset-d78a762b5a4)
