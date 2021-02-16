@@ -191,7 +191,7 @@ if __name__=='__main__':
     # print(to_categorical([1,2,3,4],num_classes=5))
     ds = kitti_dataset()
     inp, out = ds[1]
-    print(inp[1].shape)
+    print(out[1])
     # print(ds.get_filename(788,suffix='.txt'))
 
 

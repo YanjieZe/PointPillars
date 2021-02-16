@@ -247,6 +247,10 @@ class detection_head(nn.Module):
 class point_pillars_net(nn.Module):
     """
     overall model
+
+    return:                 occ, loc, angle, size, heading, clf
+
+    return shape: 4*252*252*(4,  4*3,   4,    4*3,     4,    4*4)
     """
     def __init__(self):
         super(point_pillars_net, self).__init__()
@@ -257,9 +261,9 @@ class point_pillars_net(nn.Module):
 
         self.detection_head = detection_head()
 
-    def forward(self, x):
+    def forward(self, pillar_points, pillar_indices):
 
-        x = self.pillar_feature_net(x)
+        x = self.pillar_feature_net(pillar_points, pillar_indices)
         x = self.backbone(x)
         occ, loc, angle, size, heading, clf= self.detection_head(x)
 
@@ -270,7 +274,7 @@ class point_pillars_net(nn.Module):
 
 
 if __name__=="__main__":
-    mode ='test pillar feature net'
+    mode ='test all'
     if mode == 'test pillar feature net':
         net = pillar_feature_net().float()
         test_var = np.random.randn(4, 12000,100, 7)
@@ -294,11 +298,14 @@ if __name__=="__main__":
         for i in range(6):
             print(result[i].shape)
     elif mode == 'test all':
-        net = point_pillars_net()
-        test_var = np.random.randn(4, 12234,4)
-        test_var = torch.from_numpy(test_var)
-        result = net(test_var)
+        net = point_pillars_net().float()
+        test_var = np.random.randn(4, 12000, 100, 7)
+        test_var = torch.from_numpy(test_var).float()
+        indices = np.random.randn(4, 12000, 3)
+        indices = torch.from_numpy(indices).long()
+        result = net(test_var,indices)
         for i in range(6):
             print(result[i].shape)
+        print(result[0])
 
         

@@ -53,3 +53,4 @@ kitti -|
 # 目前的困惑
 1. calibration file在哪里？为什么要做一个变换？
 2. ground truth是怎么做出来的？如何理解cpp文件的内容？
+3. heading 和 angle 的区别？
