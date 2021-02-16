@@ -23,7 +23,7 @@ class point_pillars_loss(nn.Module):
 
 
     
-    def forward(self, loc, size, angle, clf, loc0, size0, angle0, clf0):
+    def forward(self, loc, size, angle, clf, heading, loc0, size0, angle0, clf0, heading0):
         """
         Input: both 3 dimension coordinate like [x, y, z] and [length, width, height]
         """
@@ -35,7 +35,7 @@ class point_pillars_loss(nn.Module):
         focal_loss = self.focal_loss(clf, clf0)
 
         # direction loss
-        direction_loss = 
+        direction_loss = self.direction_loss(heading, heading0)
 
         loss_sum = self.loc_weight * location_loss + self.focal_weight * focal_loss + \
                    self.heading_weight * direction_loss
@@ -78,38 +78,26 @@ class point_pillars_loss(nn.Module):
         alpha = self.alpha
         gamma = self.gamma
 
-        batch_size = clf.shape[0]
-        length = batch_size*252*252*4*4
-        predict = clf.view(batch_size*252*252*4*4)
-        target = clf0.view(batch_size*252*252*4*4)
+        ones = torch.ones_like(clf0)
+        pt = (ones - clf)*clf0 + clf*(ones-clf0)
 
+        focal_weight = (alpha*clf0 + (1-alpha)*(ones-clf0)) * pt.pow(gamma)
+
+        loss = focal_weight * self.BCE(clf[...,:],clf0[...,:])
         
-        loss_sum = 0
-        for i in range(length):
-            print(i)
-            if target[i]==1:
-                loss = -alpha*np.power(1-predict[i], gamma)*np.log(predict[i])
-                loss_sum += loss
-            elif target[i]==0:
-                loss = -(1-alpha)*np.power(predict[i], gamma)*np.log(1-predict[i])
-                loss_sum += loss
-            else:
-                raise Exception('Value Error: Classification Target Not 1 or 0.')
-        
-        return loss_sum
+        return loss
                 
 
     def direction_loss(self, heading, heading0):
         """
         Input shape: batch_size*252*252*4
         """
-        
-
+        return self.BCE(heading[...,:], heading0[...,:])
 
 
 
 if __name__=='__main__':
-    mode = 'test direction loss'
+    mode = 'test focal loss'
     if mode == 'test location loss':
         params = Parameters()
         ls = point_pillars_loss(params)
@@ -133,7 +121,12 @@ if __name__=='__main__':
         clf = torch.ones(4,252,252,4,4)
         clf0 = torch.ones(4,252,252,4,4)
         res = ls.focal_loss(clf, clf0)
+        print(res)
     elif mode == 'test direction loss':
         params = Parameters()
         ls = point_pillars_loss(params)
+        clf = torch.ones(4,252,252,4)
+        clf0 = torch.ones(4,252,252,4)
+        res = ls.direction_loss(clf, clf0)
+        print(res)
 
