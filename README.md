@@ -5,7 +5,7 @@
 - [x] reader.py
 - [x] processor.py
 - [x] lossfunction.py
-- [ ] train.py
+- [x] train.py
 - [ ] inference.py
 
 # kitti dataset
