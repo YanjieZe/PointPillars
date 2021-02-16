@@ -82,8 +82,7 @@ class point_pillars_loss(nn.Module):
         pt = (ones - clf)*clf0 + clf*(ones-clf0)
 
         focal_weight = (alpha*clf0 + (1-alpha)*(ones-clf0)) * pt.pow(gamma)
-        # print(clf[...,:])
-        loss = focal_weight * torch.abs(clf[...,:]-clf0[...,:]) # 这里暂时把交叉熵换为绝对值
+        loss = (focal_weight * torch.abs(clf[...,:]-clf0[...,:])).sum() # 这里暂时把交叉熵换为绝对值
         
         return loss
                 
@@ -97,8 +96,8 @@ class point_pillars_loss(nn.Module):
 
 
 if __name__=='__main__':
-    mode = 'test focal loss'
-    if mode == 'test location loss':
+    mode = 'test all'
+    if mode == 'test all':
         params = Parameters()
         ls = point_pillars_loss(params)
         loc1 = torch.randn([4,252,252,4,3])
@@ -129,4 +128,5 @@ if __name__=='__main__':
         clf0 = torch.ones(4,252,252,4)
         res = ls.direction_loss(clf, clf0)
         print(res)
+
 

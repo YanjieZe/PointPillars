@@ -42,11 +42,12 @@ def train_PointPillarNet(batch_size = Parameters.batch_size,
                 indices = torch.autograd.Variable(indices).long()
             occ, loc, size, angle, heading, clf = model(pillar_points, indices)
             loss = loss_function(loc, size, angle, clf, heading, loc0, size0, angle0, clf0, heading0)
+            print('loss: ', loss.item())
             if (idx+1)%print_every==0:
                 print('idx: %d, loss: %d'%(idx, loss.item()))
             
             optimizer.zero_grad()
-            loss.sum().backward()
+            loss.backward
             optimizer.step()
 
 
