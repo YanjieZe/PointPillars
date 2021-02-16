@@ -3,6 +3,7 @@
 - [x] config.py
 - [x] network.py
 - [x] reader.py
+- [ ] processor.py
 - [ ] lossfunction.py
 - [ ] train.py
 
@@ -19,8 +20,14 @@
 14. 相对y轴的旋转角度
 ## calibration.txt 说明
 Tr_velo_to_cam maps a point in point cloud coordinate to reference co-ordinate.
-
-## make pillars算法
+## 文件夹结构(/home/neil/disk/kitti)
+```
+       |--- testing -- velodyne(000000.bin~007517.bin)
+kitti -|
+       |--- traning -- label_2(000000.txt~007480.txt)
+                  -- velodyne(000000.bin~007480.bin)
+```
+# make pillars算法
 ```
 输入：包含n个4维点的点云
 输出：包含n个9维点的点云
@@ -36,9 +43,13 @@ Tr_velo_to_cam maps a point in point cloud coordinate to reference co-ordinate.
     
 ```
 
-## pybind编译指令
+# pybind编译指令
 > c++ -O3 -Wall -shared -std=c++11 -fPIC $(python3 -m pybind11 --includes) point_pillars.cpp -o point_pillars$(python3-config --extension-suffix)
 
 
-## 🌟Awesome Links
+# 🌟Awesome Links
 [Kitti介绍（来自medium）](https://medium.com/test-ttile/kitti-3d-object-detection-dataset-d78a762b5a4)
+
+# 目前的困惑
+1. calibration file在哪里？为什么要做一个变换？
+2. ground truth是怎么做出来的？如何理解cpp文件的内容？

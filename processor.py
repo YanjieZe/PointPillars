@@ -51,7 +51,7 @@ class DataProcessor(Parameters):
             while label.yaw > np.pi:
                 label.yaw -= (np.pi * 2)
             transformed.append(label)
-        return labels
+        return transformed
 
     def make_point_pillars(self, points: np.ndarray):
 
@@ -75,6 +75,9 @@ class DataProcessor(Parameters):
         return pillars, indices
 
     def make_ground_truth(self, labels: List[Label3D]):
+        """
+        return shape: 252*252*4, 252*252*4*3, 252*252*4*3, 252*252*4, 252*252*4, 252*252*4*4
+        """
 
         # filter labels by classes (cars, pedestrians and Trams)
         # Label has 4 properties (Classification (0th index of labels file),
@@ -128,23 +131,67 @@ class DataProcessor(Parameters):
         # print(class_label)
         # one_hot_encode = to_categorical(sel[..., 9], num_classes=self.nb_classes)
         one_hot_encode = tf.keras.utils.to_categorical(sel[..., 9], num_classes=self.nb_classes, dtype='float64')
-
+        #      252*252*4,  252*252*4*3,   252*252*4*3       252*252*4   252*252*4,  252*252*4*4
         return sel[..., 0], sel[..., 1:4], sel[..., 4:7], sel[..., 7], sel[..., 8], one_hot_encode
 
 
 class kitti_dataset(Dataset, DataProcessor):
     
-    def __init__(self):
+    def __init__(self, root_path=Parameters.kitti_path):
         super(kitti_dataset, self).__init__()
+        self.training_pc_root = root_path+'/training/velodyne/'
+        self.traning_label_root = root_path+'/training/label_2/'
+        # print(self.training_pc_root)
+        self.file_num = 7481
+
+
+    def get_filename(self, idx:int, suffix='.bin'):
+        digit = 0
+        tmp = int(idx)
+        while tmp>0:
+            tmp = int(tmp/10)
+            digit += 1
+        zeros = 6-digit
+        if idx ==0:
+            zeros = 5
+        filename = '0'*zeros + str(idx)+suffix
+        return filename
+
+        
+    
+    def __getitem__(self, idx):
+        pc_file = self.training_pc_root + self.get_filename(idx, suffix='.bin')
+        label_file = self.traning_label_root + self.get_filename(idx, suffix='.txt')
+
+        # get input
+        pointcloud = KittiDataReader.read_lidar(pc_file)
+        pillar_points, indices = self.make_point_pillars(pointcloud)
+
+        # get label
+        label = KittiDataReader.read_label(label_file)
+        R, t = KittiDataReader.read_calibration()
+        label_transformed = self.transform_labels_into_lidar_coordinates(label, R, t) # 这里为什么要做一个变换，还是没怎么懂
+        a, b, c, d, e, f = self.make_ground_truth(label_transformed)
+
+        return [pillar_points, indices], [a, b, c, d, e, f]
+
+
+    def __len__(self):
+        return self.file_num
         
 
 
 if __name__=='__main__':
-    filename = '000000.txt'
-    list_label = KittiDataReader.read_label(filename)
-
-    processor = DataProcessor()
-    gt = processor.make_ground_truth(list_label)
-    print(gt)
+    # filename = '000000.txt'
+    # list_label = KittiDataReader.read_label(filename)
+        
+    # processor = DataProcessor()
+    # a,b,c,d,e,f = processor.make_ground_truth(list_label)
+    # print(f.shape)
     # print(to_categorical([1,2,3,4],num_classes=5))
+    ds = kitti_dataset()
+    inp, out = ds[1]
+    print(inp[1].shape)
+    # print(ds.get_filename(788,suffix='.txt'))
+
 

@@ -83,9 +83,10 @@ class NetworkParameters:
 
 class Parameters(GridParameters, DataParameters, NetworkParameters):
 
+    kitti_path = '/home/neil/disk/kitti'
     def __init__(self):
         super(Parameters, self).__init__()
-        self.kitti_path = '/home/neil/disk/kitti'
+        
 
 
 if __name__=='__main__':
