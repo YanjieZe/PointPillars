@@ -166,14 +166,24 @@ class kitti_dataset(Dataset, DataProcessor):
         # get input
         pointcloud = KittiDataReader.read_lidar(pc_file)
         pillar_points, indices = self.make_point_pillars(pointcloud)
+        pillar_points = torch.from_numpy(pillar_points).squeeze().float()
+        indices = torch.from_numpy(indices).squeeze().float()
+
 
         # get label
         label = KittiDataReader.read_label(label_file)
         R, t = KittiDataReader.read_calibration()
         label_transformed = self.transform_labels_into_lidar_coordinates(label, R, t) # 这里为什么要做一个变换，还是没怎么懂
-        a, b, c, d, e, f = self.make_ground_truth(label_transformed)
+        occ0, loc0, size0, angle0, heading0, clf0 = self.make_ground_truth(label_transformed)
 
-        return [pillar_points, indices], [a, b, c, d, e, f]
+        occ0 = torch.from_numpy(occ0).float()
+        loc0 = torch.from_numpy(loc0).float()
+        size0 = torch.from_numpy(size0).float()
+        angle0 = torch.from_numpy(angle0).float()
+        heading0 = torch.from_numpy(heading0).float()
+        clf0 = torch.from_numpy(clf0).float()
+
+        return [pillar_points, indices], [occ0, loc0, size0, angle0, heading0, clf0]
 
 
     def __len__(self):

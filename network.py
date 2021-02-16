@@ -60,7 +60,10 @@ class pillar_feature_net(nn.Module):
 
             j = 0
             while j < 12000:
-                pillar_coordinate = pillar_indices[i, j, :].numpy()
+                if pillar_indices.is_cuda:
+                    pillar_coordinate = pillar_indices[i, j, :].cpu().numpy()
+                else:
+                    pillar_coordinate = pillar_indices[i, j, :].numpy()
                 if (pillar_coordinate==[0,0,0]).all():
                     j += 1
                     continue
@@ -267,7 +270,7 @@ class point_pillars_net(nn.Module):
         x = self.backbone(x)
         occ, loc, angle, size, heading, clf= self.detection_head(x)
 
-        return occ, loc, angle, size, heading, clf
+        return occ, loc, size, angle, heading, clf
 
 
         

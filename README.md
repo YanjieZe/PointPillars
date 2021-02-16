@@ -3,9 +3,10 @@
 - [x] config.py
 - [x] network.py
 - [x] reader.py
-- [ ] processor.py
-- [ ] lossfunction.py
+- [x] processor.py
+- [x] lossfunction.py
 - [ ] train.py
+- [ ] inference.py
 
 # kitti dataset
 ## label.txt 说明
@@ -54,3 +55,4 @@ kitti -|
 1. calibration file在哪里？为什么要做一个变换？
 2. ground truth是怎么做出来的？如何理解cpp文件的内容？
 3. heading 和 angle 的区别？
+4. 把focal loss中的BCE换掉了才跑得起来。哪里出错了？

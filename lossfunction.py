@@ -6,12 +6,15 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class point_pillars_loss(nn.Module):
+    """
+    Forward Input: loc, size, angle, clf, heading, loc0, size0, angle0, clf0, heading0
+    """
 
-    def __init__(self, params:Parameters):
+    def __init__(self):
         super(point_pillars_loss, self).__init__()
 
-        self.alpha = float(params.alpha)
-        self.gamma = float(params.gamma)
+        self.alpha = float(Parameters.alpha)
+        self.gamma = float(Parameters.gamma)
         self.focal_weight = 1
         self.loc_weight = 2
         self.heading_weight = 0.2
@@ -24,9 +27,6 @@ class point_pillars_loss(nn.Module):
 
     
     def forward(self, loc, size, angle, clf, heading, loc0, size0, angle0, clf0, heading0):
-        """
-        Input: both 3 dimension coordinate like [x, y, z] and [length, width, height]
-        """
 
         # location loss
         location_loss = self.location_loss(loc, size, angle, loc0, size0, angle0)
@@ -48,18 +48,18 @@ class point_pillars_loss(nn.Module):
         """
         location loss
         """
-        da = np.sqrt(size[...,0]**2 + size[...,1]**2)
+        da = torch.sqrt(size[...,0]**2 + size[...,1]**2)
         ha = size[...,2]
         
         delta_x = (loc0[...,0] - loc[...,0])/da
         delta_y = (loc0[...,1] - loc[...,1])/da
         delta_z = (loc0[...,2] - loc[...,2])/ha
 
-        delta_w = np.log(self.relu(size0[...,0]/size[...,0])+0.0001)
-        delta_l = np.log(self.relu(size0[...,1]/size[...,1])+0.0001)
-        delta_h = np.log(self.relu(size0[...,2]/size[...,2])+0.0001)
+        delta_w = torch.log(self.relu(size0[...,0]/size[...,0])+0.0001)
+        delta_l = torch.log(self.relu(size0[...,1]/size[...,1])+0.0001)
+        delta_h = torch.log(self.relu(size0[...,2]/size[...,2])+0.0001)
 
-        delta_theta =  np.sin(angle0[...,:] - angle[...,:])
+        delta_theta =  torch.sin(angle0[...,:] - angle[...,:])
         
         zeros = torch.zeros(delta_x.shape)
 
@@ -82,8 +82,8 @@ class point_pillars_loss(nn.Module):
         pt = (ones - clf)*clf0 + clf*(ones-clf0)
 
         focal_weight = (alpha*clf0 + (1-alpha)*(ones-clf0)) * pt.pow(gamma)
-
-        loss = focal_weight * self.BCE(clf[...,:],clf0[...,:])
+        # print(clf[...,:])
+        loss = focal_weight * torch.abs(clf[...,:]-clf0[...,:]) # 这里暂时把交叉熵换为绝对值
         
         return loss
                 
