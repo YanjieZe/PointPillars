@@ -255,7 +255,7 @@ class point_pillars_net(nn.Module):
 
     return shape: 4*252*252*(4,  4*3,   4,    4*3,     4,    4*4)
     """
-    def __init__(self):
+    def __init__(self, device=None):
         super(point_pillars_net, self).__init__()
 
         self.pillar_feature_net = pillar_feature_net()
@@ -263,6 +263,11 @@ class point_pillars_net(nn.Module):
         self.backbone = backbone()
 
         self.detection_head = detection_head()
+
+        if device:
+            self.pillar_feature_net.to(device)
+            self.backbone.to(device)
+            self.detection_head.to(device)
 
     def forward(self, pillar_points, pillar_indices):
 

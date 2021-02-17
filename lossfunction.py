@@ -23,6 +23,7 @@ class point_pillars_loss(nn.Module):
         self.smoothL1 = nn.SmoothL1Loss()
         self.relu = nn.ReLU()
         self.BCE = nn.BCELoss()
+        self.sigmoid = nn.Sigmoid()
 
 
     
@@ -82,8 +83,8 @@ class point_pillars_loss(nn.Module):
         pt = (ones - clf)*clf0 + clf*(ones-clf0)
 
         focal_weight = (alpha*clf0 + (1-alpha)*(ones-clf0)) * pt.pow(gamma)
-        loss = (focal_weight * torch.abs(clf[...,:]-clf0[...,:])).sum() # 这里暂时把交叉熵换为绝对值
-        
+        predict = self.sigmoid(clf[...,:])
+        loss = (focal_weight * self.BCE(predict, clf0[...,:])).sum()# 这里暂时把交叉熵换为绝对值
         return loss
                 
 
